@@ -1,5 +1,4 @@
 <?php
-//2022-05-09 21:00
 $time0 = microtime(true);
 require 'functions.php';
 
@@ -88,19 +87,27 @@ case "exit"://退出登录OK
     break;
     
 case "addto"://添加网站OK
-    html_top("添加网站 - 福瑞导航",$txqq);
-    if ($val4 <> ""){//链接不为空
+    $code = turecode($val6);
+    if ($code and $val4 <> ""){
+        html_top("添加网站 - 福瑞导航",$txqq);
         $val = addtourl($val1,$val2,$val3,$val4,$val5);
+        html_addto($val);
+    }else{
+        html_top("添加网站 - 福瑞导航",$txqq);
+        html_addto("");
     }
-    html_addto($val);
     break;
     
 case "feedback"://反馈问题OK
-    html_top("反馈问题 - 福瑞导航",$txqq);
-    if ($val1 <> ""){
+    $code = turecode($val3);
+    if ($code and $val1 <> ""){
+        html_top("反馈问题 - 福瑞导航",$txqq);
         $val = feedback($val2,$val1);
+        html_feedback($val);
+    }else{
+        html_top("反馈问题 - 福瑞导航",$txqq);
+        html_feedback($val);
     }
-    html_feedback($val);
     break;
     
 case "help"://使用帮助OK
@@ -186,6 +193,10 @@ case "outbook"://输出CSV文件OK
     }else{
         html_a_login("当前页需登录","/login","前往登录");
     }
+    break;
+    
+case "imgcode"://图片验证码OK
+    imgcode();
     break;
     
 case "post"://处理POST请求OK
