@@ -828,7 +828,7 @@ function imgcode(){
 function turecode($code){
     $user = $_SERVER['HTTP_USER_AGENT'];
     $cook = $_COOKIE["key"];
-    $key = hash("sha3-256",$intg."WOLF4096!WOLF!".$user);
+    $key = hash("sha3-256",$code."WOLF4096!WOLF!".$user);
     if ($cook == $key){
         $val = true;
     }else{
