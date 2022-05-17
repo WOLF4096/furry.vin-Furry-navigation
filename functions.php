@@ -1,6 +1,6 @@
 <?php
-//2022-05-09 21:00
-//46个函数
+//2022-05-17 19:33
+//48个函数
 
 //数据库类
 //数据库连接OK
@@ -667,7 +667,7 @@ function del_book($val1){
     }
     return $val;
 }
-//反馈问题OK
+//反馈问题
 function feedback($mail,$text){
     $conn = conndb();
     $time = date('Y-m-d H:i:s',time());
@@ -678,6 +678,7 @@ function feedback($mail,$text){
     $sql = "INSERT INTO `wolf-fank` VALUES ('$time','$ip','$wz','$xt','$mail','$text')";
     if ($conn->query($sql)){
         $val = "提交成功";
+        fs_audit("反馈问题","反馈",$text,$mail,"http://furry.vin/favicon.png","","","");
     }else{
         $val = "提交失败";
     }
@@ -787,6 +788,54 @@ function in_url($fuid,$type,$size,$error,$tmp_name){
             unlink($filetime);//处理完后删除临时文件
     	}
     }
+}
+//简单的图片验证码OK
+function imgcode(){
+    $user = $_SERVER['HTTP_USER_AGENT'];
+    $font = 'Res.ttf';
+    $intg = rand(1111,9999);
+    $key = hash("sha3-256",$intg."WOLF4096!WOLF!".$user);
+    $expire = time() + 600;
+    setcookie("key", $key, $expire);
+    
+    $s1 = substr($intg, 0, 1);
+    $s2 = substr($intg, 1, 1);
+    $s3 = substr($intg, 2, 1);
+    $s4 = substr($intg, 3, 1);
+    
+    $im = imagecreate(128,64);
+    $bg = imagecolorallocate($im, 255, 255, 255);
+    
+    $b1 = imagecolorallocate($im, rand(0,224), rand(0,224), rand(0,224));
+    $b2 = imagecolorallocate($im, rand(0,224), rand(0,224), rand(0,224));
+    $b3 = imagecolorallocate($im, rand(0,224), rand(0,224), rand(0,224));
+    $b4 = imagecolorallocate($im, rand(0,224), rand(0,224), rand(0,224));
+    
+    imagettftext($im, 27, rand(-30,30), 07, rand(30,50), $b1, $font, $s1);
+    imagettftext($im, 27, rand(-30,30), 37, rand(30,50), $b2, $font, $s2);
+    imagettftext($im, 27, rand(-30,30), 67, rand(30,50), $b3, $font, $s3);
+    imagettftext($im, 27, rand(-30,30), 97, rand(30,50), $b4, $font, $s4);
+    
+    imageline($im, 0, rand(0,64), 128, rand(0,64), $b1);
+    imageline($im, 0, rand(0,64), 128, rand(0,64), $b2);
+    imageline($im, 0, rand(0,64), 128, rand(0,64), $b3);
+    imageline($im, 0, rand(0,64), 128, rand(0,64), $b4);
+    
+    header('Content-type: image/png');
+    imagepng($im);
+}
+//验证图片验证码
+function turecode($code){
+    $user = $_SERVER['HTTP_USER_AGENT'];
+    $cook = $_COOKIE["key"];
+    $key = hash("sha3-256",$intg."WOLF4096!WOLF!".$user);
+    if ($cook == $key){
+        $val = true;
+    }else{
+        setcookie("key", "", time()-3600);
+        $val = false;
+    }
+    return $val;
 }
 
 
@@ -1486,6 +1535,8 @@ function html_addto($val){
                         <input type="text" name="val3" placeholder="介绍" class="input-text"><br/><br/>
                         <input type="url"  name="val4" placeholder="链接" class="input-text"><br/><br/>
                         <input type="url"  name="val5" placeholder="图标" class="input-text"><br/><br/>
+                        <input type="text"  name="val6" placeholder="验证码" class="input-text" style="max-width: 128px;">
+                        <img src="/imgcode" style="border-radius: 4px;"><br/><br/>
                         <input type="submit" value="提交" class="input-text" style="background-color: #448EF6;color: #fff;"><br/>
                         <span id="return"><?php echo $val;?></span><br/>
                         <div class="bottomtxt">
@@ -1507,6 +1558,8 @@ function html_feedback($val){
                         <span class="fonts24">反馈</span><br/><br/>
                         <textarea rows="5" name="val1" class="input-text" placeholder="Bug，建议... 都可以在此填写"></textarea><br/><br/>
                         <input type="mail" name="val2" placeholder="邮箱（选填，用于回复您的反馈）" class="input-text"><br/><br/>
+                        <input type="text"  name="val3" placeholder="验证码" class="input-text" style="max-width: 128px;">
+                        <img src="/imgcode" style="border-radius: 4px;"><br/><br/>
                         <input type="submit" value="提交" class="input-text" style="background-color: #448EF6;color: #fff;"><br/>
                         <span id="return"><?php echo $val;?></span><br/>
                         <div class="bottomtxt">
